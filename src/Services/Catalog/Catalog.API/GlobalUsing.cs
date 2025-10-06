@@ -1,0 +1,9 @@
+﻿global using BuildingBlocks.Results;
+global using BuildingBlocks.Results.Errors;
+global using Carter;
+global using Catalog.API.Errors;
+global using Catalog.API.Helper;
+global using Catalog.API.Models;
+global using Mapster;
+global using Marten;
+global using Mediator;
