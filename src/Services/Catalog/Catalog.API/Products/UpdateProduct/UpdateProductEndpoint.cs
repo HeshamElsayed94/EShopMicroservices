@@ -1,6 +1,4 @@
-﻿using Catalog.API.Products.GetProductByCategory;
-
-namespace Catalog.API.Products.UpdateProduct;
+﻿namespace Catalog.API.Products.UpdateProduct;
 
 public record UpdateProductRequest(
     Guid Id,
@@ -26,7 +24,7 @@ public class UpdateProductEndpoint : ICarterModule
 
 		})
 		.WithName("UpdateProduct")
-		.Produces<GetProductByCategoryResponse>(StatusCodes.Status204NoContent)
+		.Produces(StatusCodes.Status204NoContent)
 		.ProducesProblem(StatusCodes.Status422UnprocessableEntity)
 		.ProducesProblem(StatusCodes.Status400BadRequest)
 		.ProducesProblem(StatusCodes.Status404NotFound)
