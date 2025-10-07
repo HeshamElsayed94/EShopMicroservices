@@ -17,15 +17,15 @@ internal class UpdateProductCommandHandler(IDocumentSession session, ILogger<Upd
 {
 	public async ValueTask<Result<Success>> Handle(UpdateProductCommand command, CancellationToken ct)
 	{
-		var product = await session.LoadAsync<Product>(command.Id, ct);
+		var productExist = await session.Query<Product>().AnyAsync(x => x.Id.Equals(command.Id));
 
-		if (product is null)
+		if (!productExist)
 		{
 			logger.LogWarning("Product with id '{Id}' not found", command.Id);
 			return AppErrors.ProductNotFound(command.Id);
 		}
 
-		product = command.Adapt<Product>();
+		var product = command.Adapt<Product>();
 
 		session.Update(product);
 

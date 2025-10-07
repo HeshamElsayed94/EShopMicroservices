@@ -1,5 +1,3 @@
-using BuildingBlocks.Exceptions;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMediator(opt =>
@@ -11,6 +9,11 @@ builder.Services.AddMediator(opt =>
 builder.Services.AddCarter(assemblyCatalog: new(typeof(Program).Assembly));
 builder.Services.AddMarten(opts => opts.Connection(builder.Configuration.GetConnectionString("Database")!))
 .UseLightweightSessions();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.InitializeMartenWith<CatalogInitialData>();
+}
 
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
 {

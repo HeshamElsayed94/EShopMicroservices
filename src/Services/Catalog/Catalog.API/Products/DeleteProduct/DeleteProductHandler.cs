@@ -8,15 +8,15 @@ internal class DeleteProductCommandHandler(IDocumentSession session, ILogger<Del
 {
 	public async ValueTask<Result<Success>> Handle(DeleteProductCommand command, CancellationToken ct)
 	{
-		var product = await session.LoadAsync<Product>(command.Id, ct);
+		var productExist = await session.Query<Product>().AnyAsync(x => x.Id.Equals(command.Id), token: ct);
 
-		if (product is null)
+		if (!productExist)
 		{
 			logger.LogWarning("Product with id '{Id}' not found", command.Id);
 			return AppErrors.ProductNotFound(command.Id);
 		}
 
-		session.Delete(product);
+		session.Delete<Product>(command.Id);
 
 		await session.SaveChangesAsync(ct);
 
