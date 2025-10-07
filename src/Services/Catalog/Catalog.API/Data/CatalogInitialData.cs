@@ -9,7 +9,7 @@ public class CatalogInitialData : IInitialData
 	public async Task Populate(IDocumentStore store, CancellationToken ct)
 	{
 		await using var session = store.LightweightSession();
-		if (await session.Query<CatalogInitialData>().AnyAsync(token: ct))
+		if (await session.Query<Product>().AnyAsync(token: ct))
 			return;
 
 		session.Store<Product>(GetPreconfiguredProducts());

@@ -1,16 +1,31 @@
-﻿namespace Catalog.API.Products.GetProducts;
+﻿using Catalog.API.Common;
 
-public record GetProductsResponse(IEnumerable<Product> Products);
+namespace Catalog.API.Products.GetProducts;
+
+public record GetProductsRequest(int? PageNumber = 1, int? PageSize = 10);
+
+public class GetProductsRequestValidator : AbstractValidator<GetProductsRequest>
+{
+	public GetProductsRequestValidator()
+	{
+		RuleFor(x => x.PageNumber).GreaterThanOrEqualTo(1);
+		RuleFor(x => x.PageSize).InclusiveBetween(1, 50);
+	}
+}
+
+public record GetProductsResponse(PagedResult<Product> Products);
 
 public class GetProductsEndpoint : ICarterModule
 {
 	public void AddRoutes(IEndpointRouteBuilder app)
 	{
-		app.MapGet("/products", async (ISender sender, CancellationToken ct) =>
+		app.MapGet("/products", async ([AsParameters] GetProductsRequest request, ISender sender, CancellationToken ct) =>
 		{
-			var result = await sender.Send(new GetProductsQuery(), ct);
+			var query = request.Adapt<GetProductsQuery>();
 
-			var response = result.Adapt<GetProductsResponse>();
+			var result = await sender.Send(query, ct);
+
+			var response = new GetProductsResponse(result.Products);
 
 			return Results.Ok(response);
 		})
