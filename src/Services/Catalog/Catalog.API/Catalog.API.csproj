@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
     <PackageReference Include="Carter" Version="9.0.0" />
     <PackageReference Include="Marten" Version="8.11.0" />
     <PackageReference Include="Mediator.SourceGenerator" Version="3.0.1">

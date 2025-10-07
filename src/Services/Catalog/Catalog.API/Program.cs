@@ -28,6 +28,9 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 builder.Services.AddFluentValidationAutoValidation(config
     => config.OverrideDefaultResultFactoryWith<CustomValidationResultFactory>());
 
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("Database")!);
+
 builder.Services.AddExceptionHandler<ExceptionHandler>();
 
 var app = builder.Build();
@@ -35,5 +38,10 @@ var app = builder.Build();
 app.UseExceptionHandler();
 
 app.MapGroup("").AddFluentValidationAutoValidation().MapCarter();
+
+app.UseHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.Run();
