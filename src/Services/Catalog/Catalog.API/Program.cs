@@ -7,8 +7,18 @@ builder.Services.AddMediator(opt =>
 });
 
 builder.Services.AddCarter(assemblyCatalog: new(typeof(Program).Assembly));
-builder.Services.AddMarten(opts => opts.Connection(builder.Configuration.GetConnectionString("Database")!))
-.UseLightweightSessions();
+
+builder.Services.AddMarten(opts =>
+{
+    opts.Connection(builder.Configuration.GetConnectionString("Database")!);
+    opts.CreateDatabasesForTenants(c =>
+    {
+        c.MaintenanceDatabase(builder.Configuration.GetConnectionString("MaintenanceDatabase")!);
+        c.ForTenant()
+         .CheckAgainstPgDatabase();
+    });
+})
+.UseLightweightSessions().ApplyAllDatabaseChangesOnStartup();
 
 if (builder.Environment.IsDevelopment())
 {
