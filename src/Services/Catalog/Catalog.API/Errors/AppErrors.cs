@@ -1,4 +1,6 @@
-﻿namespace Catalog.API.Errors;
+﻿using BuildingBlocks.Common.Results.Errors;
+
+namespace Catalog.API.Errors;
 
 public static class AppErrors
 {

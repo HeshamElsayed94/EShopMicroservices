@@ -1,6 +1,6 @@
-﻿using BuildingBlocks.Results.Errors;
+﻿using BuildingBlocks.Common.Results.Errors;
 
-namespace BuildingBlocks.Results.Interfaces;
+namespace BuildingBlocks.Common.Results.Interfaces;
 
 public interface IResult
 {

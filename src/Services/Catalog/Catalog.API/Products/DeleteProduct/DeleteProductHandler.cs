@@ -1,4 +1,6 @@
-﻿namespace Catalog.API.Products.DeleteProduct;
+﻿using BuildingBlocks.Common.Results;
+
+namespace Catalog.API.Products.DeleteProduct;
 
 public record DeleteProductCommand(Guid Id) : ICommand<Result<Success>>;
 internal class DeleteProductCommandHandler(IDocumentSession session, ILogger<DeleteProductCommandHandler> logger)
@@ -6,12 +8,6 @@ internal class DeleteProductCommandHandler(IDocumentSession session, ILogger<Del
 {
 	public async ValueTask<Result<Success>> Handle(DeleteProductCommand command, CancellationToken ct)
 	{
-		logger.LogInformation(
-				"{Class}.{Method} called with {@Command}",
-				nameof(DeleteProductCommandHandler),
-				nameof(Handle),
-				command);
-
 		var product = await session.LoadAsync<Product>(command.Id, ct);
 
 		if (product is null)

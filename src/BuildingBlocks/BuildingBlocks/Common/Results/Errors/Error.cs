@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json.Serialization;
 
-namespace BuildingBlocks.Results.Errors;
+namespace BuildingBlocks.Common.Results.Errors;
 
 public readonly record struct Error
 {

@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Text.Json.Serialization;
-using BuildingBlocks.Results.Errors;
-using BuildingBlocks.Results.Interfaces;
+using BuildingBlocks.Common.Results.Errors;
+using BuildingBlocks.Common.Results.Interfaces;
 
-namespace BuildingBlocks.Results;
+namespace BuildingBlocks.Common.Results;
 
 public static class Result
 {

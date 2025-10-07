@@ -8,6 +8,19 @@ public record UpdateProductRequest(
     string ImageFile,
     decimal Price);
 
+public class UpdateProductCommandValidator : AbstractValidator<UpdateProductRequest>
+{
+	public UpdateProductCommandValidator()
+	{
+		RuleFor(x => x.Id).NotEmpty();
+		RuleFor(x => x.Name).NotEmpty()
+		.Length(2, 150);
+		RuleFor(x => x.Category).NotEmpty();
+		RuleFor(x => x.ImageFile).NotEmpty();
+		RuleFor(x => x.Price).GreaterThanOrEqualTo(0);
+	}
+}
+
 //public record UpdateProductResponse();
 
 public class UpdateProductEndpoint : ICarterModule

@@ -1,4 +1,6 @@
-﻿namespace Catalog.API.Products.UpdateProduct;
+﻿using BuildingBlocks.Common.Results;
+
+namespace Catalog.API.Products.UpdateProduct;
 
 public record UpdateProductCommand(
     Guid Id,
@@ -15,12 +17,6 @@ internal class UpdateProductCommandHandler(IDocumentSession session, ILogger<Upd
 {
 	public async ValueTask<Result<Success>> Handle(UpdateProductCommand command, CancellationToken ct)
 	{
-		logger.LogInformation(
-				"{Class}.{Method} called with {@Command}",
-				nameof(UpdateProductCommandHandler),
-				nameof(Handle),
-				command);
-
 		var product = await session.LoadAsync<Product>(command.Id, ct);
 
 		if (product is null)

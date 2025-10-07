@@ -1,9 +1,10 @@
-﻿global using BuildingBlocks.Results;
-global using BuildingBlocks.Results.Errors;
+﻿global using BuildingBlocks.Behaviors;
+global using BuildingBlocks.Helper;
 global using Carter;
 global using Catalog.API.Errors;
-global using Catalog.API.Helper;
 global using Catalog.API.Models;
+global using FluentValidation;
 global using Mapster;
 global using Marten;
 global using Mediator;
+global using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;

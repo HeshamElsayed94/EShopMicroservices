@@ -1,8 +1,13 @@
-using System.Text.Json.Serialization;
+using BuildingBlocks.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddMediator(opt => opt.ServiceLifetime = ServiceLifetime.Scoped);
+builder.Services.AddMediator(opt =>
+{
+    opt.ServiceLifetime = ServiceLifetime.Scoped;
+    opt.PipelineBehaviors = [typeof(LoggingBehavior<,>)];
+});
+
 builder.Services.AddCarter(assemblyCatalog: new(typeof(Program).Assembly));
 builder.Services.AddMarten(opts => opts.Connection(builder.Configuration.GetConnectionString("Database")!))
 .UseLightweightSessions();
@@ -13,16 +18,19 @@ builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = 
     context.ProblemDetails.Extensions.Add("requestId", context.HttpContext.TraceIdentifier);
 });
 
-builder.Services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            });
+builder.Services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true);
+
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+builder.Services.AddFluentValidationAutoValidation(config
+    => config.OverrideDefaultResultFactoryWith<CustomValidationResultFactory>());
+
+builder.Services.AddExceptionHandler<ExceptionHandler>();
 
 var app = builder.Build();
 
-app.MapCarter();
+app.UseExceptionHandler();
+
+app.MapGroup("").AddFluentValidationAutoValidation().MapCarter();
 
 app.Run();
