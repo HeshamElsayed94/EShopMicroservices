@@ -2,33 +2,33 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMediator(opt =>
 {
-    opt.ServiceLifetime = ServiceLifetime.Scoped;
-    opt.PipelineBehaviors = [typeof(LoggingBehavior<,>)];
+	opt.ServiceLifetime = ServiceLifetime.Scoped;
+	opt.PipelineBehaviors = [typeof(LoggingBehavior<,>)];
 });
 
 builder.Services.AddCarter(assemblyCatalog: new(typeof(Program).Assembly));
 
 builder.Services.AddMarten(opts =>
 {
-    opts.Connection(builder.Configuration.GetConnectionString("Database")!);
-    opts.CreateDatabasesForTenants(c =>
-    {
-        c.MaintenanceDatabase(builder.Configuration.GetConnectionString("MaintenanceDatabase")!);
-        c.ForTenant()
-         .CheckAgainstPgDatabase();
-    });
+	opts.Connection(builder.Configuration.GetConnectionString("Database")!);
+	opts.CreateDatabasesForTenants(c =>
+	{
+		c.MaintenanceDatabase(builder.Configuration.GetConnectionString("MaintenanceDatabase")!);
+		c.ForTenant()
+		 .CheckAgainstPgDatabase();
+	});
 })
 .UseLightweightSessions().ApplyAllDatabaseChangesOnStartup();
 
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.InitializeMartenWith<CatalogInitialData>();
+	builder.Services.InitializeMartenWith<CatalogInitialData>();
 }
 
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
 {
-    context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
-    context.ProblemDetails.Extensions.Add("requestId", context.HttpContext.TraceIdentifier);
+	context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
+	context.ProblemDetails.Extensions.Add("requestId", context.HttpContext.TraceIdentifier);
 });
 
 builder.Services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true);
@@ -36,12 +36,19 @@ builder.Services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadReq
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 builder.Services.AddFluentValidationAutoValidation(config
-    => config.OverrideDefaultResultFactoryWith<CustomValidationResultFactory>());
+	=> config.OverrideDefaultResultFactoryWith<CustomValidationResultFactory>());
 
 builder.Services.AddHealthChecks()
-    .AddNpgSql(builder.Configuration.GetConnectionString("Database")!);
+	.AddNpgSql(builder.Configuration.GetConnectionString("Database")!);
 
 builder.Services.AddExceptionHandler<ExceptionHandler>();
+
+builder.Services.Configure<JsonOptions>(config =>
+{
+	config.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+	config.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+	config.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
 var app = builder.Build();
 
@@ -51,7 +58,7 @@ app.MapGroup("").AddFluentValidationAutoValidation().MapCarter();
 
 app.UseHealthChecks("/health", new HealthCheckOptions
 {
-    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+	ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
 app.Run();

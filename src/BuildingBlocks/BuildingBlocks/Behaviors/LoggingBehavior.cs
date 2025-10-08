@@ -9,30 +9,34 @@ public class LoggingBehavior<TRequest, TResponse>(ILogger<LoggingBehavior<TReque
 where TRequest : IMessage
 
 {
-	public async ValueTask<TResponse> Handle(TRequest request, MessageHandlerDelegate<TRequest, TResponse> next, CancellationToken ct)
-	{
-		logger.LogInformation("[START] Handle request={Request} - Response={Response} - RequestData={RequestData}",
-		typeof(TRequest).Name, typeof(TResponse).Name, request);
+    public async ValueTask<TResponse> Handle(TRequest request, MessageHandlerDelegate<TRequest, TResponse> next, CancellationToken ct)
+    {
+        var responseName = typeof(TResponse).IsGenericType
+            ? $"{typeof(TResponse).Name.Trim('1', '`')}<{string.Join(',', typeof(TResponse).GenericTypeArguments.Select(x => x.Name))}>"
+            : typeof(TResponse).Name;
 
-		var timer = new Stopwatch();
-		timer.Start();
+        logger.LogInformation("[START] Handle request={Request} - Response={Response} - RequestData={RequestData}",
+        typeof(TRequest).Name, responseName, request);
 
-		var response = await next(request, ct);
+        var timer = new Stopwatch();
+        timer.Start();
 
-		timer.Stop();
-		var timeTaken = timer.Elapsed;
+        var response = await next(request, ct);
 
-		if (timeTaken.Seconds > 3)
-		{
-			logger.LogWarning("[PERFORMANCE] The request {Request} took {TimeTaken} seconds.",
-			typeof(TRequest).Name, timeTaken.Seconds);
-		}
+        timer.Stop();
+        var timeTaken = timer.Elapsed;
 
-		logger.LogInformation(
-			"[END] Handled {Request} with {Response} .",
-			typeof(TRequest).Name,
-			typeof(TResponse).Name);
+        if (timeTaken.Seconds > 3)
+        {
+            logger.LogWarning("[PERFORMANCE] The request {Request} took {TimeTaken} seconds.",
+            typeof(TRequest).Name, timeTaken.Seconds);
+        }
 
-		return response;
-	}
+        logger.LogInformation(
+            "[END] Handled {Request} with {Response} .",
+            typeof(TRequest).Name,
+            responseName);
+
+        return response;
+    }
 }
