@@ -14,7 +14,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
     <PackageReference Include="Carter" Version="9.0.0" />
-    <PackageReference Include="Marten" Version="8.11.0" />
+    <PackageReference Include="Marten" Version="8.13.0" />
     <PackageReference Include="Mediator.SourceGenerator" Version="3.0.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
