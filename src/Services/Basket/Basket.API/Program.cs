@@ -1,3 +1,5 @@
+using Discount.Grpc;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
@@ -58,6 +60,15 @@ builder.Services.AddStackExchangeRedisCache(opt =>
 
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();
 builder.Services.Decorate<IBasketRepository, CachedBasketRepository>();
+
+//Grpc services
+builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(opt =>
+	opt.Address = new(builder.Configuration["GrpcSettings:DiscountUrl"]!)
+	)
+	.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+	{
+		ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+	});
 
 var app = builder.Build();
 
