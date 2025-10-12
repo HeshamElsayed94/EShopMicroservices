@@ -6,7 +6,7 @@ public sealed class Customer : Entity<CustomerId>
 
     public string Email { get; private set; } = null!;
 
-    [JsonConstructor]
+    //[JsonConstructor]
     private Customer()
     {
 

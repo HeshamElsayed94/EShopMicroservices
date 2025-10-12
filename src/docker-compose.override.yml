@@ -29,6 +29,15 @@ services:
      ports:
       - "6377:6379"
 
+  orderdb:
+   container_name: orderdb
+   environment:
+    - ACCEPT_EULA=Y
+    - SA_PASSWORD=SwN123
+   restart: always
+   ports:
+    - "1435:1433"
+
   catalog.api:
     container_name: Catalog.API
     environment:

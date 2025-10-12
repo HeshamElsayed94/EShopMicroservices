@@ -24,7 +24,12 @@ public sealed class Order : Aggregate<OrderId>
         private set { }
     }
 
-    [JsonConstructor]
+    private Order()
+    {
+
+    }
+
+    //[JsonConstructor]
     private Order(OrderId id, List<OrderItem> orderItems, CustomerId customerId, OrderName orderName, Address shippingAddress, Address billingAddress, Payment payment, OrderStatus status, decimal totalPrice)
     {
         Id = id;
@@ -66,12 +71,14 @@ public sealed class Order : Aggregate<OrderId>
 
     }
 
-    public void Update(OrderName orderName, Address shippingAddress, Address billingAddress, Payment payment, OrderStatus status)
+    public Result<Success> Update(OrderName orderName, Address shippingAddress, Address billingAddress, Payment payment, OrderStatus status)
     {
         ArgumentNullException.ThrowIfNull(orderName);
         ArgumentNullException.ThrowIfNull(shippingAddress);
         ArgumentNullException.ThrowIfNull(billingAddress);
         ArgumentNullException.ThrowIfNull(payment);
+        if (!Enum.IsDefined(status))
+            return Error.Validation("Order.Status", "Invalid status");
 
         OrderName = orderName;
         ShippingAddress = shippingAddress;
@@ -80,6 +87,8 @@ public sealed class Order : Aggregate<OrderId>
         Status = status;
 
         AddDomainEvent(new OrderUpdatedEvent(this));
+
+        return Result.Success;
     }
 
     public void Add(ProductId productId, int quantity, decimal price)

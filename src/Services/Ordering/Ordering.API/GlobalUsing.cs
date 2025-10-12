@@ -4,4 +4,8 @@ global using BuildingBlocks.Exceptions;
 global using Carter;
 global using FluentValidation;
 global using Microsoft.AspNetCore.Http.Json;
+global using Ordering.API;
+global using Ordering.Application;
+global using Ordering.Infrastructure;
+global using Ordering.Infrastructure.Data.Extensions;
 global using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;

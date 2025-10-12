@@ -6,11 +6,19 @@ public sealed class Product : Entity<ProductId>
 
     public decimal Price { get; private set; }
 
-    public static Result<Product> Create(string name, decimal price)
+    public static Result<Product> Create(ProductId id, string name, decimal price)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(price, nameof(price));
 
-        return new Product() { Name = name, Price = price };
+        return new Product()
+        {
+            Id = id,
+            Name = name,
+            Price = price
+        };
     }
+
+    private Product()
+    { }
 }

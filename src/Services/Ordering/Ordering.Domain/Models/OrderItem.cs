@@ -11,6 +11,9 @@ public sealed class OrderItem : Entity<OrderItemId>
         Price = price;
     }
 
+    private OrderItem()
+    { }
+
     public OrderId OrderId { get; private set; }
 
     public ProductId ProductId { get; private set; }
