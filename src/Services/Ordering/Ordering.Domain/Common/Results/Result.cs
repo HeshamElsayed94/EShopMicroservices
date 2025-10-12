@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Text.Json.Serialization;
-using Ordering.Domain.Common.Errors;
 using Ordering.Domain.Common.Results.Interfaces;
 
 namespace Ordering.Domain.Common.Results;
@@ -8,6 +6,20 @@ namespace Ordering.Domain.Common.Results;
 public static class Result
 {
     public static Success Success => default;
+
+    public static Result<Success> Combine(params IResult[] results)
+    {
+        var failedResults = results.Where(r => !r.ISuccess).ToList();
+
+        if (failedResults.Count is 0)
+            return Result.Success;
+
+        var errors = failedResults
+            .SelectMany(r => r.Errors!)
+            .ToList();
+
+        return errors;
+    }
 }
 
 public class Result<TValue> : IResult<TValue>
@@ -66,6 +78,7 @@ public class Result<TValue> : IResult<TValue>
 
     public TNextValue Match<TNextValue>(Func<TValue, TNextValue> onValue, Func<List<Error>, TNextValue> onError)
         => !ISuccess ? onError(_errors!) : onValue(Value);
+
 }
 
 public readonly record struct Success;

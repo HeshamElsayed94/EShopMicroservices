@@ -1,2 +1,14 @@
-﻿global using BuildingBlocks.Behaviors;
+﻿global using System.Text.Json.Serialization;
+global using BuildingBlocks.Behaviors;
+global using Mediator;
+global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
+global using Ordering.Application.Data;
+global using Ordering.Application.Dtos;
+global using Ordering.Application.Extensions;
+global using Ordering.Domain.Common.Errors;
+global using Ordering.Domain.Common.Results;
+global using Ordering.Domain.Enums;
+global using Ordering.Domain.Events;
+global using Ordering.Domain.Models;
+global using Ordering.Domain.ValueObjects;
