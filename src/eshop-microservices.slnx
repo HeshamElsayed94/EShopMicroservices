@@ -1,24 +1,25 @@
 <Solution>
   <Folder Name="/BuildingBlocks/">
-    <Project Path="E:/Courses/EShopMicroservices/src/BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj" />
+    <Project Path="BuildingBlocks/BuildingBlocks.Messaging/BuildingBlocks.Messaging.csproj" Id="b402d4cc-5112-459d-a459-10de5dd13a63" />
+    <Project Path="BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj" />
   </Folder>
   <Folder Name="/Services/" />
   <Folder Name="/Services/Basket/">
-    <Project Path="E:/Courses/EShopMicroservices/src/Services/Basket/Basket.API/Basket.API.csproj" Id="4b2d8783-0bac-4902-bb90-64cc7bafc561" />
+    <Project Path="Services/Basket/Basket.API/Basket.API.csproj" Id="4b2d8783-0bac-4902-bb90-64cc7bafc561" />
   </Folder>
   <Folder Name="/Services/Catalog/">
-    <Project Path="E:/Courses/EShopMicroservices/src/Services/Catalog/Catalog.Api/Catalog.API.csproj" Id="75143ff0-ae27-41d9-9ad3-39d57ce22669" />
+    <Project Path="Services/Catalog/Catalog.Api/Catalog.API.csproj" Id="75143ff0-ae27-41d9-9ad3-39d57ce22669" />
   </Folder>
   <Folder Name="/Services/Discount/">
-    <Project Path="E:/Courses/EShopMicroservices/src/Services/Discount/Discount.Grpc/Discount.Grpc.csproj" Id="4483c98a-c084-4dc4-9d9d-9d269fa2be58" />
+    <Project Path="Services/Discount/Discount.Grpc/Discount.Grpc.csproj" Id="4483c98a-c084-4dc4-9d9d-9d269fa2be58" />
   </Folder>
   <Folder Name="/Services/Ordering/">
-    <Project Path="E:/Courses/EShopMicroservices/src/Services/Ordering/Ordering.API/Ordering.API.csproj" Id="b742d7f0-ffc5-48ea-9f80-1b362804dea9" />
-    <Project Path="E:/Courses/EShopMicroservices/src/Services/Ordering/Ordering.Application/Ordering.Application.csproj" Id="4bca9fa8-4622-437f-b6b5-b13fa811690e" />
-    <Project Path="E:/Courses/EShopMicroservices/src/Services/Ordering/Ordering.Domain/Ordering.Domain.csproj" Id="dc332b99-852e-43f5-acbb-d966be5c6236" />
-    <Project Path="E:/Courses/EShopMicroservices/src/Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj" Id="9e6a9703-0047-4ed5-8fb8-01e6cd6e97a1" />
+    <Project Path="Services/Ordering/Ordering.API/Ordering.API.csproj" Id="b742d7f0-ffc5-48ea-9f80-1b362804dea9" />
+    <Project Path="Services/Ordering/Ordering.Application/Ordering.Application.csproj" Id="4bca9fa8-4622-437f-b6b5-b13fa811690e" />
+    <Project Path="Services/Ordering/Ordering.Domain/Ordering.Domain.csproj" Id="dc332b99-852e-43f5-acbb-d966be5c6236" />
+    <Project Path="Services/Ordering/Ordering.Infrastructure/Ordering.Infrastructure.csproj" Id="9e6a9703-0047-4ed5-8fb8-01e6cd6e97a1" />
   </Folder>
-  <Project Path="E:/Courses/EShopMicroservices/src/docker-compose.dcproj">
+  <Project Path="docker-compose.dcproj">
     <Build />
   </Project>
 </Solution>
