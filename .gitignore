@@ -416,3 +416,7 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+/src/.idea/.idea.eshop-microservices/.idea/.gitignore
+/src/.idea/.idea.eshop-microservices/.idea/.name
+/src/.idea/.idea.eshop-microservices/.idea/indexLayout.xml
+/src/.idea/.idea.eshop-microservices/.idea/vcs.xml

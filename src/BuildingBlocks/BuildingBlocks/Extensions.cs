@@ -1,4 +1,5 @@
-﻿using Mediator;
+﻿using System.Globalization;
+using Mediator;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BuildingBlocks;
@@ -9,7 +10,12 @@ public static class Extensions
 	{
 		if (options is not null)
 		{
-			services.AddMediator(o => o = options);
+			services.AddMediator(o=>
+			{
+				o.Assemblies = options.Assemblies;
+				o.ServiceLifetime = options.ServiceLifetime;
+				o.PipelineBehaviors = options.PipelineBehaviors;
+			});
 
 			return services;
 		}
@@ -17,4 +23,5 @@ public static class Extensions
 		services.AddMediator(opt => opt.ServiceLifetime = ServiceLifetime.Scoped);
 		return services;
 	}
+
 }
