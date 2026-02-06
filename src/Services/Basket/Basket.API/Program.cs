@@ -1,4 +1,6 @@
-using BuildingBlocks.Messaging.Mass_Transit;
+using System.Reflection;
+using BuildingBlocks;
+using BuildingBlocks.Messaging.MassTransit;
 using Discount.Grpc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,11 +15,23 @@ builder.Services.AddExceptionHandler<ExceptionHandler>();
 
 builder.Services.AddCarter();
 
-builder.Services.AddMediator(opt =>
+
+builder.Services.AddMediatorService(new()
 {
-    opt.ServiceLifetime = ServiceLifetime.Scoped;
-    opt.PipelineBehaviors = [typeof(LoggingBehavior<,>)];
+	ServiceLifetime = ServiceLifetime.Scoped,
+	Assemblies = [Assembly.GetExecutingAssembly()],
+	PipelineBehaviors = [typeof(LoggingBehavior<,>)]
 });
+
+
+//builder.Services.AddMediator(opt =>
+//{
+//	opt.ServiceLifetime = ServiceLifetime.Scoped;
+//	opt.PipelineBehaviors = [typeof(LoggingBehavior<,>)];
+//});
+
+// async communication services
+builder.Services.AddMessageBroker(builder.Configuration);
 
 builder.Services.AddMarten(opts =>
 {
@@ -25,13 +39,12 @@ builder.Services.AddMarten(opts =>
 
     opts.Schema.For<ShoppingCart>().Identity(x => x.UserName);
 
-    opts.CreateDatabasesForTenants(c =>
-    {
-        c.MaintenanceDatabase(builder.Configuration.GetConnectionString("MaintenanceDatabase")!);
-        c.ForTenant()
-         .CheckAgainstPgDatabase();
-    });
-
+	opts.CreateDatabasesForTenants(c =>
+	{
+		c.MaintenanceDatabase(builder.Configuration.GetConnectionString("MaintenanceDatabase")!);
+		c.ForTenant()
+		 .CheckAgainstPgDatabase();
+	});
 }).UseLightweightSessions()
 .ApplyAllDatabaseChangesOnStartup();
 

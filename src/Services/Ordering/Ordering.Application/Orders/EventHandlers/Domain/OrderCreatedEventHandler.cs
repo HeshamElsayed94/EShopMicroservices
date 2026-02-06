@@ -1,9 +1,12 @@
-﻿namespace Ordering.Application.Orders.EventHandlers.Domain;
+﻿using MassTransit;
 
-internal class OrderCreatedEventHandler : INotificationHandler<OrderCreatedEvent>
+namespace Ordering.Application.Orders.EventHandlers.Domain;
+
+internal class OrderCreatedEventHandler(IPublishEndpoint publishEndpoint) : INotificationHandler<OrderCreatedEvent>
 {
-    public ValueTask Handle(OrderCreatedEvent notification, CancellationToken ct)
-    {
-        return ValueTask.CompletedTask;
-    }
+	public async ValueTask Handle(OrderCreatedEvent domainEvent, CancellationToken ct)
+	{
+		var orderCreatedIntegrationEvent = domainEvent.Order.ToOrderDto();
+		await publishEndpoint.Publish(orderCreatedIntegrationEvent, ct);
+	}
 }
