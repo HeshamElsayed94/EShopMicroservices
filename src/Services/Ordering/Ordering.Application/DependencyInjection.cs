@@ -2,6 +2,7 @@
 using BuildingBlocks;
 using BuildingBlocks.Messaging.MassTransit;
 using Microsoft.Extensions.Configuration;
+using Microsoft.FeatureManagement;
 
 namespace Ordering.Application;
 
@@ -16,11 +17,7 @@ public static class DependencyInjection
 			PipelineBehaviors = [typeof(LoggingBehavior<,>)]
 		});
 
-		//services.AddMediator(opt =>
-		//{
-		//	opt.ServiceLifetime = ServiceLifetime.Scoped;
-		//	opt.PipelineBehaviors = [typeof(LoggingBehavior<,>)];
-		//});
+		services.AddFeatureManagement();
 
 		services.AddMessageBroker(configuration, Assembly.GetExecutingAssembly());
 

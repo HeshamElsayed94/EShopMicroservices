@@ -6,10 +6,11 @@ using Ordering.Application.Orders.Commands.CreateOrder;
 namespace Ordering.Application.Orders.EventHandlers.Integration;
 
 public class BasketCheckoutEventHandler(ISender sender, ILogger<BasketCheckoutEventHandler> logger)
-: IConsumer<BasketCheckoutEvent>
+	: IConsumer<BasketCheckoutEvent>
 {
 	public async Task Consume(ConsumeContext<BasketCheckoutEvent> context)
 	{
+		logger.LogInformation("Integration Event handled: {IntegrationEvent}", context.Message.GetType().Name);
 		var command = MapToCreateOrderCommand(context.Message);
 		await sender.Send(command);
 	}
@@ -26,11 +27,11 @@ public class BasketCheckoutEventHandler(ISender sender, ILogger<BasketCheckoutEv
 			message.ZipCode);
 
 		var paymentDto = new PaymentDto(
-		message.CardName,
-		message.CardNumber,
-		message.Expiration,
-		message.CVV,
-		message.PaymentMethod);
+			message.CardName,
+			message.CardNumber,
+			message.Expiration,
+			message.CVV,
+			message.PaymentMethod);
 
 		var orderId = Guid.NewGuid();
 
@@ -42,8 +43,10 @@ public class BasketCheckoutEventHandler(ISender sender, ILogger<BasketCheckoutEv
 			addressDto,
 			paymentDto,
 			OrderStatus.Pending,
-			[new(orderId,Guid.NewGuid(),2,500),
-			new(orderId,Guid.NewGuid(),1,400)]);
+			[
+				new(orderId, Guid.NewGuid(), 2, 500),
+				new(orderId, Guid.NewGuid(), 1, 400)
+			]);
 
 		return new CreateOrderCommand(orderDto);
 	}
