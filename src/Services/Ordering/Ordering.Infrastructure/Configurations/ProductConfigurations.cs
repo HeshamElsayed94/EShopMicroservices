@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Ordering.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Ordering.Domain.ValueObjects;
 
 namespace Ordering.Infrastructure.Configurations;
@@ -16,9 +14,7 @@ internal class ProductConfigurations : IEntityTypeConfiguration<Product>
             productId => productId.Value,
             dbId => ProductId.Of(dbId).Value);
 
-        builder.Property(p=>p.Name).HasMaxLength(100).IsRequired();
-
-
+        builder.Property(p => p.Name).HasMaxLength(100).IsRequired();
 
     }
 }
