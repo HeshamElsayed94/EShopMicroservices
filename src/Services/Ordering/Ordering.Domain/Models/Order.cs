@@ -2,115 +2,117 @@
 
 public sealed class Order : Aggregate<OrderId>
 {
-    private readonly List<OrderItem> _orderItems = [];
+	private readonly List<OrderItem> _orderItems = [];
 
-    public IReadOnlyList<OrderItem> OrderItems => _orderItems;
+	private Order()
+	{
 
-    public CustomerId CustomerId { get; private set; } = null!;
+	}
 
-    public OrderName OrderName { get; private set; } = null!;
+	//[JsonConstructor]
+	private Order(OrderId id, List<OrderItem> orderItems, CustomerId customerId, OrderName orderName, Address shippingAddress,
+		Address billingAddress, Payment payment, OrderStatus status, decimal totalPrice)
+	{
+		Id = id;
+		_orderItems = orderItems;
+		CustomerId = customerId;
+		OrderName = orderName;
+		ShippingAddress = shippingAddress;
+		BillingAddress = billingAddress;
+		Payment = payment;
+		Status = status;
+		TotalPrice = totalPrice;
+	}
 
-    public Address ShippingAddress { get; private set; } = null!;
+	private Order(OrderId id, CustomerId customerId, OrderName orderName, Address shippingAddress, Address billingAddress, Payment payment)
+	{
+		Id = id;
+		CustomerId = customerId;
+		OrderName = orderName;
+		ShippingAddress = shippingAddress;
+		BillingAddress = billingAddress;
+		Payment = payment;
+		Status = OrderStatus.Pending;
+	}
 
-    public Address BillingAddress { get; private set; } = null!;
+	public IReadOnlyList<OrderItem> OrderItems => _orderItems;
 
-    public Payment Payment { get; private set; } = null!;
+	public CustomerId CustomerId { get; private set; } = null!;
 
-    public OrderStatus Status { get; private set; } = OrderStatus.Pending;
+	public OrderName OrderName { get; private set; } = null!;
 
-    public decimal TotalPrice
-    {
-        get => OrderItems.Sum(x => x.Price * x.Quantity);
-        private set { }
-    }
+	public Address ShippingAddress { get; private set; } = null!;
 
-    private Order()
-    {
+	public Address BillingAddress { get; private set; } = null!;
 
-    }
+	public Payment Payment { get; private set; } = null!;
 
-    //[JsonConstructor]
-    private Order(OrderId id, List<OrderItem> orderItems, CustomerId customerId, OrderName orderName, Address shippingAddress, Address billingAddress, Payment payment, OrderStatus status, decimal totalPrice)
-    {
-        Id = id;
-        _orderItems = orderItems;
-        CustomerId = customerId;
-        OrderName = orderName;
-        ShippingAddress = shippingAddress;
-        BillingAddress = billingAddress;
-        Payment = payment;
-        Status = status;
-        TotalPrice = totalPrice;
-    }
+	public OrderStatus Status { get; private set; } = OrderStatus.Pending;
 
-    private Order(OrderId id, CustomerId customerId, OrderName orderName, Address shippingAddress, Address billingAddress, Payment payment)
-    {
-        Id = id;
-        CustomerId = customerId;
-        OrderName = orderName;
-        ShippingAddress = shippingAddress;
-        BillingAddress = billingAddress;
-        Payment = payment;
-        Status = OrderStatus.Pending;
-    }
+	public decimal TotalPrice
+	{
+		get => OrderItems.Sum(x => x.Price * x.Quantity);
+		private set { }
+	}
 
-    public static Result<Order> Create(OrderId id, CustomerId customerId, OrderName orderName, Address shippingAddress, Address billingAddress, Payment payment)
-    {
-        ArgumentNullException.ThrowIfNull(id);
-        ArgumentNullException.ThrowIfNull(customerId);
-        ArgumentNullException.ThrowIfNull(orderName);
-        ArgumentNullException.ThrowIfNull(shippingAddress);
-        ArgumentNullException.ThrowIfNull(billingAddress);
-        ArgumentNullException.ThrowIfNull(payment);
+	public static Result<Order> Create(OrderId id, CustomerId customerId, OrderName orderName, Address shippingAddress,
+		Address billingAddress, Payment payment)
+	{
+		ArgumentNullException.ThrowIfNull(id);
+		ArgumentNullException.ThrowIfNull(customerId);
+		ArgumentNullException.ThrowIfNull(orderName);
+		ArgumentNullException.ThrowIfNull(shippingAddress);
+		ArgumentNullException.ThrowIfNull(billingAddress);
+		ArgumentNullException.ThrowIfNull(payment);
 
-        var order = new Order(id, customerId, orderName, shippingAddress, billingAddress, payment);
+		var order = new Order(id, customerId, orderName, shippingAddress, billingAddress, payment);
 
-        order.AddDomainEvent(new OrderCreatedEvent(order));
+		order.AddDomainEvent(new OrderCreatedEvent(order));
 
-        return order;
+		return order;
 
-    }
+	}
 
-    public Result<Success> Update(OrderName orderName, Address shippingAddress, Address billingAddress, Payment payment, OrderStatus status)
-    {
-        ArgumentNullException.ThrowIfNull(orderName);
-        ArgumentNullException.ThrowIfNull(shippingAddress);
-        ArgumentNullException.ThrowIfNull(billingAddress);
-        ArgumentNullException.ThrowIfNull(payment);
-        if (!Enum.IsDefined(status))
-            return Error.Validation("Order.Status", "Invalid status");
+	public Result<Success> Update(OrderName orderName, Address shippingAddress, Address billingAddress, Payment payment, OrderStatus status)
+	{
+		ArgumentNullException.ThrowIfNull(orderName);
+		ArgumentNullException.ThrowIfNull(shippingAddress);
+		ArgumentNullException.ThrowIfNull(billingAddress);
+		ArgumentNullException.ThrowIfNull(payment);
 
-        OrderName = orderName;
-        ShippingAddress = shippingAddress;
-        BillingAddress = billingAddress;
-        Payment = payment;
-        Status = status;
+		if (!Enum.IsDefined(status))
+			return Error.Validation("Order.Status", "Invalid status");
 
-        AddDomainEvent(new OrderUpdatedEvent(this));
+		OrderName = orderName;
+		ShippingAddress = shippingAddress;
+		BillingAddress = billingAddress;
+		Payment = payment;
+		Status = status;
 
-        return Result.Success;
-    }
+		AddDomainEvent(new OrderUpdatedEvent(this));
 
-    public void Add(ProductId productId, int quantity, decimal price)
-    {
-        ArgumentNullException.ThrowIfNull(productId);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(price);
+		return Result.Success;
+	}
 
-        var orderItem = new OrderItem(Id, productId, quantity, price);
+	public void Add(ProductId productId, int quantity, decimal price)
+	{
+		ArgumentNullException.ThrowIfNull(productId);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(price);
 
-        _orderItems.Add(orderItem);
-    }
+		var orderItem = new OrderItem(Id, productId, quantity, price);
 
-    public void Remove(ProductId productId)
-    {
+		_orderItems.Add(orderItem);
+	}
 
-        ArgumentNullException.ThrowIfNull(productId);
+	public void Remove(ProductId productId)
+	{
 
-        var orderItem = _orderItems.FirstOrDefault(x => x.ProductId == productId);
+		ArgumentNullException.ThrowIfNull(productId);
 
-        if (orderItem is not null)
-            _orderItems.Remove(orderItem);
-    }
+		var orderItem = _orderItems.FirstOrDefault(x => x.ProductId == productId);
 
+		if (orderItem is not null)
+			_orderItems.Remove(orderItem);
+	}
 }

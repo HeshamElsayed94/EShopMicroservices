@@ -2,7 +2,8 @@
 
 public record OrderName
 {
-	private const int DefaultLength = 5;
+	private const int DefaultLength = 3;
+
 	[JsonConstructor]
 	private OrderName(string value) => Value = value;
 
@@ -10,7 +11,7 @@ public record OrderName
 
 	public static Result<OrderName> Of(string value)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(value, nameof(value));
+		ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
 		ArgumentOutOfRangeException.ThrowIfLessThan(value.Length, DefaultLength);
 

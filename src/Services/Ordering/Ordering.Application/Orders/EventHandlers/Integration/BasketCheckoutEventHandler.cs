@@ -44,10 +44,10 @@ public class BasketCheckoutEventHandler(ISender sender, ILogger<BasketCheckoutEv
 			paymentDto,
 			OrderStatus.Pending,
 			[
-				new(orderId, Guid.NewGuid(), 2, 500),
-				new(orderId, Guid.NewGuid(), 1, 400)
+				new(orderId, new("5334c996-8457-4cf0-815c-ed2b77c4ff61"), 2, 500),
+				new(orderId, new("c67d6323-e8b1-4bdf-9a75-b0d0d2e7e914"), 1, 400)
 			]);
 
-		return new CreateOrderCommand(orderDto);
+		return new(orderDto);
 	}
 }
