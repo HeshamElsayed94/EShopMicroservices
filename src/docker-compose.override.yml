@@ -2,95 +2,159 @@ services:
   catalogdb:
     container_name: catalogdb
     environment:
-     - POSTGRES_USER=postgres
-     - POSTGRES_PASSWORD=123
-     - POSTGRES_DB=CatalogDb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=CatalogDb
     restart: always
     ports:
-     - "5433:5432"
+      - "5432:5432"
     volumes:
-     - postgres_catalog:/var/lib/postgresql/data/
+      - postgres_catalog:/var/lib/postgresql/data/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d CatalogDb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   basketdb:
     container_name: basketdb
     environment:
-     - POSTGRES_USER=postgres
-     - POSTGRES_PASSWORD=123
-     - POSTGRES_DB=BasketDb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=BasketDb
     restart: always
     ports:
-     - "5434:5432"
+      - "5433:5432"
     volumes:
-     - postgres_basket:/var/lib/postgresql/data/
+      - postgres_basket:/var/lib/postgresql/data/
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d BasketDb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   distributedcache:
-     container_name: distributedCache
-     restart: always
-     ports:
-      - "6377:6379"
+    container_name: distributedcache
+    restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   orderdb:
-   container_name: orderdb
-   environment:
-    - ACCEPT_EULA=Y
-    - SA_PASSWORD=SwN123
-   restart: always
-   ports:
-    - "1435:1433"
+    container_name: orderdb
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=SwN12345678
+    restart: always
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P SwN12345678 -C -Q 'SELECT 1' || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  messagebroker:
+    container_name: messagebroker
+    hostname: ecommerce-mq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   catalog.api:
-    container_name: Catalog.API
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Host=catalogdb;Port=5432;Database=CatalogDb;Username=postgres;Password=123
-      - ConnectionStrings__MaintenanceDatabase=Host=catalogdb;Port=5432;Database=CatalogDb;Username=postgres;Password=123
+      - ConnectionStrings__Database=Server=catalogdb;Port=5432;Database=CatalogDb;User Id=postgres;Password=postgres;Include Error Detail=true
+      - ConnectionStrings__MaintenanceDatabase=Server=catalogdb;Port=5432;Database=postgres;User Id=postgres;Password=postgres;Include Error Detail=true
     depends_on:
-     - catalogdb
+      catalogdb:
+        condition: service_healthy
+    restart: on-failure
     ports:
       - "6000:8080"
       - "6060:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
   basket.api:
-    container_name: Basket.API
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Host=basketdb;Port=5432;Database=BasketDb;Username=postgres;Password=123
-      - ConnectionStrings__MaintenanceDatabase=Host=basketdb;Port=5432;Database=BasketDb;Username=postgres;Password=123
+      - ConnectionStrings__Database=Server=basketdb;Port=5432;Database=BasketDb;User Id=postgres;Password=postgres;Include Error Detail=true
+      - ConnectionStrings__MaintenanceDatabase=Server=basketdb;Port=5432;Database=postgres;User Id=postgres;Password=postgres;Include Error Detail=true
       - ConnectionStrings__Redis=distributedcache:6379
       - GrpcSettings__DiscountUrl=https://discount.grpc:8081
+      - MessageBroker__Host=amqp://ecommerce-mq:5672
+      - MessageBroker__UserName=guest
+      - MessageBroker__Password=guest
     depends_on:
-     - basketdb
-     - distributedcache
-     - discount.grpc
+      basketdb:
+        condition: service_healthy
+      distributedcache:
+        condition: service_healthy
+      discount.grpc:
+        condition: service_started
+      messagebroker:
+        condition: service_healthy
+    restart: on-failure
     ports:
       - "6001:8080"
       - "6061:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
   discount.grpc:
-    container_name: Discount.Grpc
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
       - ConnectionStrings__Database=Data Source=discountdb
+    restart: on-failure
     ports:
       - "6002:8080"
       - "6062:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  ordering.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Database=Server=orderdb;Database=OrderDb;User Id=sa;Password=SwN12345678;Encrypt=False;TrustServerCertificate=True
+      - MessageBroker__Host=amqp://ecommerce-mq:5672
+      - MessageBroker__UserName=guest
+      - MessageBroker__Password=guest
+      - FeatureManagement__OrderFullfilment=false
+    depends_on:
+      orderdb:
+        condition: service_healthy
+      messagebroker:
+        condition: service_healthy
+    restart: on-failure
+    ports:
+      - "6003:8080"
+      - "6063:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro

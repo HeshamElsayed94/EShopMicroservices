@@ -15,14 +15,12 @@ builder.Services.AddExceptionHandler<ExceptionHandler>();
 
 builder.Services.AddCarter();
 
-
 builder.Services.AddMediatorService(new()
 {
-	ServiceLifetime = ServiceLifetime.Scoped,
-	Assemblies = [Assembly.GetExecutingAssembly()],
-	PipelineBehaviors = [typeof(LoggingBehavior<,>)]
+    ServiceLifetime = ServiceLifetime.Scoped,
+    Assemblies = [Assembly.GetExecutingAssembly()],
+    PipelineBehaviors = [typeof(LoggingBehavior<,>)]
 });
-
 
 //builder.Services.AddMediator(opt =>
 //{
@@ -30,23 +28,22 @@ builder.Services.AddMediatorService(new()
 //	opt.PipelineBehaviors = [typeof(LoggingBehavior<,>)];
 //});
 
-// async communication services
-builder.Services.AddMessageBroker(builder.Configuration);
-
 builder.Services.AddMarten(opts =>
-{
-    opts.Connection(builder.Configuration.GetConnectionString("Database")!);
+    {
+        opts.Connection(builder.Configuration.GetConnectionString("Database")!);
 
-    opts.Schema.For<ShoppingCart>().Identity(x => x.UserName);
+        opts.Schema.For<ShoppingCart>().Identity(x => x.UserName);
 
-	opts.CreateDatabasesForTenants(c =>
-	{
-		c.MaintenanceDatabase(builder.Configuration.GetConnectionString("MaintenanceDatabase")!);
-		c.ForTenant()
-		 .CheckAgainstPgDatabase();
-	});
-}).UseLightweightSessions()
-.ApplyAllDatabaseChangesOnStartup();
+        opts.CreateDatabasesForTenants(c =>
+        {
+            c.MaintenanceDatabase(builder.Configuration.GetConnectionString("MaintenanceDatabase")!);
+
+            c.ForTenant()
+                .CheckAgainstPgDatabase();
+        });
+    })
+    .UseLightweightSessions()
+    .ApplyAllDatabaseChangesOnStartup();
 
 builder.Services.Configure<RouteHandlerOptions>(config => config.ThrowOnBadRequest = true);
 
@@ -77,7 +74,7 @@ builder.Services.Decorate<IBasketRepository, CachedBasketRepository>();
 
 //Grpc services
 builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(opt =>
-    opt.Address = new(builder.Configuration["GrpcSettings:DiscountUrl"]!)
+        opt.Address = new(builder.Configuration["GrpcSettings:DiscountUrl"]!)
     )
     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
     {

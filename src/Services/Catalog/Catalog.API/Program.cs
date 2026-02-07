@@ -10,24 +10,24 @@ builder.Services.AddMediatorService(new()
 	PipelineBehaviors = [typeof(LoggingBehavior<,>)]
 });
 
-builder.Services.AddCarter(assemblyCatalog: new(typeof(Program).Assembly));
+builder.Services.AddCarter(new(typeof(Program).Assembly));
 
 builder.Services.AddMarten(opts =>
-{
-	opts.Connection(builder.Configuration.GetConnectionString("Database")!);
-	opts.CreateDatabasesForTenants(c =>
 	{
-		c.MaintenanceDatabase(builder.Configuration.GetConnectionString("MaintenanceDatabase")!);
-		c.ForTenant()
-		 .CheckAgainstPgDatabase();
-	});
-})
-.UseLightweightSessions().ApplyAllDatabaseChangesOnStartup();
+		opts.Connection(builder.Configuration.GetConnectionString("Database")!);
 
-if (builder.Environment.IsDevelopment())
-{
-	builder.Services.InitializeMartenWith<CatalogInitialData>();
-}
+		opts.CreateDatabasesForTenants(c =>
+		{
+			c.MaintenanceDatabase(builder.Configuration.GetConnectionString("MaintenanceDatabase")!);
+
+			c.ForTenant()
+				.CheckAgainstPgDatabase();
+		});
+	})
+	.UseLightweightSessions()
+	.ApplyAllDatabaseChangesOnStartup();
+
+if (builder.Environment.IsDevelopment()) builder.Services.InitializeMartenWith<CatalogInitialData>();
 
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
 {
