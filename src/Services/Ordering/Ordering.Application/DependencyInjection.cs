@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using BuildingBlocks;
 using BuildingBlocks.Messaging.MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement;
@@ -10,11 +9,10 @@ public static class DependencyInjection
 {
 	public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
 	{
-		services.AddMediatorService(new()
+		services.AddMediator(opt =>
 		{
-			ServiceLifetime = ServiceLifetime.Scoped,
-			Assemblies = [Assembly.GetExecutingAssembly()],
-			PipelineBehaviors = [typeof(LoggingBehavior<,>)]
+			opt.ServiceLifetime = ServiceLifetime.Scoped;
+			opt.PipelineBehaviors = [typeof(LoggingBehavior<,>)];
 		});
 
 		services.AddFeatureManagement();

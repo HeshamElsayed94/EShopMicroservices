@@ -1,13 +1,9 @@
-using System.Reflection;
-using BuildingBlocks;
-
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddMediatorService(new()
+builder.Services.AddMediator(opt =>
 {
-	ServiceLifetime = ServiceLifetime.Scoped,
-	Assemblies = [Assembly.GetExecutingAssembly()],
-	PipelineBehaviors = [typeof(LoggingBehavior<,>)]
+	opt.ServiceLifetime = ServiceLifetime.Scoped;
+	opt.PipelineBehaviors = [typeof(LoggingBehavior<,>)];
 });
 
 builder.Services.AddCarter(new(typeof(Program).Assembly));
